@@ -3,62 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Apple Style Advanced Calculator</title>
+    <!-- Google Fonts - Inter for a modern look, similar to Apple's San Francisco font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #2e2e2e; /* Dark background similar to iOS calculator */
+            color: #fff;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .calculator {
+            background-color: #000000; /* Black background for the calculator body */
+            border-radius: 20px; /* More rounded corners */
+            width: 320px; /* Standard iPhone calculator width */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5); /* Subtle overall shadow */
+            /* Ensure calculator is centered vertically on smaller screens */
+            max-height: 95vh;
+            overflow-y: auto; /* Allow scrolling if content exceeds height */
+        }
+
+        .display {
+            background-color: #000000; /* Black for display background */
+            text-align: right;
+            padding: 20px 10px;
+            margin-bottom: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: flex-end; /* Align text to bottom */
+            justify-content: flex-end; /* Align text to right */
+            overflow-x: auto; /* Allow horizontal scrolling for long numbers */
+            white-space: nowrap; /* Prevent wrapping */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .result-display {
+            font-size: 3.5em; /* Large font size for result */
+            font-weight: 500;
+            color: #ffffff; /* White color for numbers */
+            letter-spacing: -1px; /* Tighter letter spacing */
+            flex-shrink: 0; /* Prevent text from shrinking */
+        }
+
+        .buttons {
+            display: grid;
+            /* Main calculator layout: 4 columns for numbers/operators */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px; /* Consistent gap between buttons */
+        }
+
+        .button {
+            background-color: #333333; /* Dark gray for number buttons */
+            color: #ffffff;
+            border: none;
+            border-radius: 50%; /* Make buttons circular */
+            height: 70px; /* Fixed height for circular buttons */
+            width: 70px; /* Fixed width for circular buttons */
+            font-size: 1.8em; /* Font size for numbers */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Remove box shadow for a flatter Apple look */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+
+        .button:hover {
+            filter: brightness(1.2); /* Slight brightening on hover */
+        }
+
+        .button:active {
+            background-color: #555555; /* Darker on press */
+        }
+
+        /* Specific button styles */
+        .button.operator {
+            background-color: #FF9F0A; /* Orange for operators */
+            font-size: 2em; /* Slightly larger for operators */
+        }
+
+        .button.operator:hover {
+            filter: brightness(1.1);
+        }
+
+        .button.operator:active {
+            background-color: #cc7f00; /* Darker orange on press */
+        }
+
+        .button.function-gray {
+            background-color: #A5A5A5; /* Light gray for AC, +/-, % */
+            color: #1c1c1c; /* Dark text for light gray buttons */
+        }
+
+        .button.function-gray:hover {
+            filter: brightness(0.9);
+        }
+
+        .button.function-gray:active {
+            background-color: #888888;
+        }
+
+        .button.scientific {
+            background-color: #1C1C1C; /* Even darker gray for scientific functions */
+            font-size: 1.2em; /* Smaller font for scientific functions */
+            height: 50px; /* Smaller height for scientific buttons */
+            width: 50px; /* Smaller width for scientific buttons */
+            border-radius: 10px; /* Square with rounded corners for scientific */
+        }
+
+        .button.scientific:active {
+            background-color: #000000;
+        }
+
+        /* Special button for 0 spanning two columns */
+        .button.span-two {
+            grid-column: span 2;
+            border-radius: 35px; /* Rounded rectangle for the 0 button */
+            justify-content: flex-start; /* Align 0 to the left */
+            padding-left: 25px; /* Padding for the 0 number */
+            width: auto; /* Allow width to be determined by grid-column span */
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 360px) {
+            .calculator {
+                width: 95%;
+                padding: 10px;
+                gap: 10px;
+            }
+            .button {
+                height: 60px;
+                width: 60px;
+                font-size: 1.6em;
+            }
+            .result-display {
+                font-size: 3em;
+            }
+            .button.scientific {
+                height: 45px;
+                width: 45px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="calculator">
         <div class="display">
-            <div id="expression-display" class="expression-display"></div>
+            <!-- Main display for current number/result -->
             <div id="result-display" class="result-display">0</div>
         </div>
         <div class="buttons">
-            <button class="button function" data-value="sin(">sin</button>
-            <button class="button function" data-value="cos(">cos</button>
-            <button class="button function" data-value="tan(">tan</button>
-            <button class="button function" data-value="log(">log</button>
-            <button class="button function" data-value="ln(">ln</button>
+            <!-- Row 1: Clear, Sign, Percent, Divide -->
+            <button class="button function-gray" data-value="AC">AC</button>
+            <button class="button function-gray" data-value="+/-">+/-</button>
+            <button class="button function-gray" data-value="%">%</button>
+            <button class="button operator" data-value="/">÷</button>
 
-            <button class="button function" data-value="^">x<sup>y</sup></button>
-            <button class="button function" data-value="sqrt(">√x</button>
-            <button class="button function" data-value="!">x!</button>
-            <button class="button constant" data-value="Math.PI">π</button>
-            <button class="button constant" data-value="Math.E">e</button>
-
-            <button class="button memory" data-value="MC">MC</button>
-            <button class="button memory" data-value="MR">MR</button>
-            <button class="button memory" data-value="M+">M+</button>
-            <button class="button memory" data-value="M-">M-</button>
-            <button class="button clear" data-value="C">C</button>
-
-            <button class="button operator" data-value="(">(</button>
-            <button class="button operator" data-value=")">)</button>
-            <button class="button operator" data-value="%">%</button>
-            <button class="button operator" data-value="/">/</button>
-            <button class="button delete" data-value="backspace">DEL</button>
-
+            <!-- Row 2: 7, 8, 9, Multiply -->
             <button class="button number" data-value="7">7</button>
             <button class="button number" data-value="8">8</button>
             <button class="button number" data-value="9">9</button>
-            <button class="button operator" data-value="*">*</button>
-            <button class="button operator" data-value="-">-</button>
+            <button class="button operator" data-value="*">×</button>
 
+            <!-- Row 3: 4, 5, 6, Subtract -->
             <button class="button number" data-value="4">4</button>
             <button class="button number" data-value="5">5</button>
             <button class="button number" data-value="6">6</button>
-            <button class="button operator" data-value="+">+</button>
-            <button class="button number" data-value="0">0</button>
+            <button class="button operator" data-value="-">-</button>
 
-
+            <!-- Row 4: 1, 2, 3, Add -->
             <button class="button number" data-value="1">1</button>
             <button class="button number" data-value="2">2</button>
             <button class="button number" data-value="3">3</button>
-            <button class="button decimal" data-value=".">.</button>
-            <button class="button equals" data-value="=">=</button>
+            <button class="button operator" data-value="+">+</button>
+
+            <!-- Scientific and Memory functions added in a compact layout below main grid -->
+            <!-- These buttons are designed to be smaller and less prominent than main calculator buttons -->
+            <button class="button scientific" data-value="sin">sin</button>
+            <button class="button scientific" data-value="cos">cos</button>
+            <button class="button scientific" data-value="tan">tan</button>
+            <button class="button scientific" data-value="log">log</button>
+
+            <button class="button scientific" data-value="ln">ln</button>
+            <button class="button scientific" data-value="^">x²</button> <!-- Simplified x^y to x^2 for single button press -->
+            <button class="button scientific" data-value="sqrt">√x</button>
+            <button class="button scientific" data-value="!">x!</button>
+
+            <button class="button scientific" data-value="MC">MC</button>
+            <button class="button scientific" data-value="MR">MR</button>
+            <button class="button scientific" data-value="M+">M+</button>
+            <button class="button scientific" data-value="M-">M-</button>
+
+            <!-- The final row with 0, decimal, and implicit equals (handled by operator press) -->
+            <!-- We maintain the '=' button here for visual consistency with the operator column,
+                 but its functionality is integrated into the operator logic. -->
+            <button class="button number span-two" data-value="0">0</button>
+            <button class="button number" data-value=".">.</button>
+            <button class="button operator" data-value="=">=</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const resultDisplay = document.getElementById('result-display');
+        const buttons = document.querySelectorAll('.button');
+
+        let currentInput = '0'; // The number currently being typed by the user
+        let firstOperand = null; // Stores the first number for binary operations
+        let operator = null;     // Stores the pending operator (+, -, *, /)
+        let awaitingNextOperand = false; // Flag to indicate if the next number input should clear currentInput
+        let memory = 0; // Stores the value in calculator's memory
+
+        // Helper function to handle factorial calculation
+        function factorial(n) {
+            n = parseInt(n); // Factorial only applies to integers
+            if (n < 0 || !Number.isInteger(n)) return NaN; // Factorial not defined for negative or non-integers
+            if (n === 0 || n === 1) return 1;
+            if (n > 170) return Infinity; // Prevent overflow for very large numbers
+            let res = 1;
+            for (let i = 2; i <= n; i++) {
+                res *= i;
+            }
+            return res;
+        }
+        // Make factorial available globally for eval to find it
+        window.factorial = factorial;
+
+        // Function to safely perform arithmetic operations
+        // This function will be used internally by the dynamic calculation logic.
+        function operate(num1, op, num2) {
+            num1 = parseFloat(num1);
+            num2 = parseFloat(num2);
+
+            if (isNaN(num1) || isNaN(num2)) {
+                return 'Error'; // Handle cases where numbers are not valid
+            }
+
+            switch (op) {
+                case '+': return num1 + num2;
+                case '-': return num1 - num2;
+                case '*': return num1 * num2;
+                case '/':
+                    if (num2 === 0) return 'Error: Div by 0'; // Prevent division by zero
+                    return num1 / num2;
+                default: return num2; // If no valid operator, just return the second number
+            }
+        }
+
+        // Function to update the "AC" (All Clear) or "C" (Clear) button text
+        // "C" clears the current entry, "AC" clears everything.
+        function updateClearButton() {
+            const acButton = document.querySelector('[data-value="AC"]'); // Select by initial data-value
+            if (acButton) {
+                // If there's any active input, operand, or operator, show "C"
+                if (currentInput !== '0' || firstOperand !== null || operator !== null) {
+                    acButton.textContent = 'C';
+                    acButton.dataset.value = 'C'; // Update data-value for logic
+                } else {
+                    acButton.textContent = 'AC';
+                    acButton.dataset.value = 'AC'; // Update data-value for logic
+                }
+            }
+        }
+
+        // Initial update of the clear button when the page loads
+        updateClearButton();
+
+        // Event listener for all calculator buttons
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.dataset.value; // Get the action/value from data-value attribute
+
+                // --- Handle Number and Decimal Input ---
+                if (!isNaN(parseFloat(value)) || value === '.') {
+                    if (awaitingNextOperand) {
+                        // If awaiting a new operand, start fresh
+                        currentInput = value === '.' ? '0.' : value; // If '.' is first, prepend '0'
+                        awaitingNextOperand = false;
+                    } else {
+                        // If not awaiting, append to current input
+                        if (value === '.' && currentInput.includes('.')) return; // Prevent multiple decimals
+                        if (currentInput === '0' && value !== '.') {
+                            currentInput = value; // Replace initial '0' with new digit
+                        } else {
+                            currentInput += value; // Append digit/decimal
+                        }
+                    }
+                    resultDisplay.textContent = currentInput; // Update display immediately
+                    updateClearButton(); // Update AC/C button
+                    return; // Exit as number input is handled
+                }
+
+                // --- Handle Operator Input (+, -, *, /, =) ---
+                if (['+', '-', '*', '/', '='].includes(value)) {
+                    // If this is the first part of an operation, store currentInput as firstOperand
+                    if (firstOperand === null) {
+                        firstOperand = parseFloat(currentInput);
+                    } else if (operator) {
+                        // If an operator is already pending, perform the previous operation
+                        const result = operate(firstOperand, operator, parseFloat(currentInput));
+                        // Handle errors from the operate function
+                        if (typeof result === 'string' && result.startsWith('Error')) {
+                            resultDisplay.textContent = result;
+                            currentInput = '0'; // Reset state after error
+                            firstOperand = null;
+                            operator = null;
+                            awaitingNextOperand = false;
+                            updateClearButton();
+                            return;
+                        }
+                        firstOperand = result; // Store the result as the new firstOperand
+                        resultDisplay.textContent = result.toString(); // Display the intermediate result
+                    }
+
+                    // Set the new operator (or clear if '=' was pressed)
+                    operator = (value === '=') ? null : value;
+                    awaitingNextOperand = true; // Next number input should start a new currentInput
+                    updateClearButton(); // Update AC/C button
+                    return; // Exit as operator input is handled
+                }
+
+                // --- Handle Special Functions (AC/C, +/-, %, Scientific, Memory) ---
+                switch (value) {
+                    case 'AC':
+                    case 'C':
+                        // Clear all state or just current input
+                        currentInput = '0';
+                        firstOperand = null;
+                        operator = null;
+                        awaitingNextOperand = false;
+                        resultDisplay.textContent = '0';
+                        updateClearButton();
+                        break;
+
+                    case '+/-':
+                        // Change sign of the current number
+                        currentInput = (parseFloat(currentInput) * -1).toString();
+                        resultDisplay.textContent = currentInput;
+                        break;
+
+                    case '%':
+                        // Apple's percentage behavior is contextual. Simplified here:
+                        // If an operation is pending (e.g., 50 + 10%), calculate 10% of 50.
+                        // Otherwise, just divide current number by 100.
+                        if (operator && firstOperand !== null && !awaitingNextOperand) {
+                            const percentageValue = parseFloat(currentInput) / 100 * firstOperand;
+                            currentInput = percentageValue.toString();
+                            resultDisplay.textContent = currentInput;
+                        } else {
+                            currentInput = (parseFloat(currentInput) / 100).toString();
+                            resultDisplay.textContent = currentInput;
+                        }
+                        break;
+
+                    // --- Scientific Functions (apply directly to current displayed number) ---
+                    case 'sin':
+                    case 'cos':
+                    case 'tan':
+                    case 'log': // Base 10 logarithm
+                    case 'ln':  // Natural logarithm (base e)
+                    case 'sqrt': // Square root
+                    case '!': // Factorial
+                    case '^': // Power (simplified to x^2 for single button press)
+                        let num = parseFloat(currentInput);
+                        let calculatedResult = 'Error'; // Default error
+                        if (!isNaN(num)) {
+                            try {
+                                if (value === 'sin') calculatedResult = Math.sin(num * Math.PI / 180); // Convert degrees to radians
+                                else if (value === 'cos') calculatedResult = Math.cos(num * Math.PI / 180);
+                                else if (value === 'tan') calculatedResult = Math.tan(num * Math.PI / 180);
+                                else if (value === 'log') {
+                                    if (num <= 0) calculatedResult = 'Error'; // Log of non-positive number
+                                    else calculatedResult = Math.log10(num);
+                                }
+                                else if (value === 'ln') {
+                                    if (num <= 0) calculatedResult = 'Error'; // Ln of non-positive number
+                                    else calculatedResult = Math.log(num);
+                                }
+                                else if (value === 'sqrt') {
+                                    if (num < 0) calculatedResult = 'Error'; // Sqrt of negative number
+                                    else calculatedResult = Math.sqrt(num);
+                                }
+                                else if (value === '!') calculatedResult = factorial(num);
+                                else if (value === '^') calculatedResult = Math.pow(num, 2); // Represents x^2 for simplicity
+                            } catch (e) {
+                                calculatedResult = 'Error'; // Catch any runtime errors from Math functions
+                            }
+                        }
+                        currentInput = calculatedResult.toString();
+                        resultDisplay.textContent = currentInput;
+                        awaitingNextOperand = true; // After function, next number starts new input
+                        break;
+
+                    // --- Memory Functions ---
+                    case 'MC': // Memory Clear
+                        memory = 0;
+                        break;
+                    case 'M+': // Memory Add
+                        if (!isNaN(parseFloat(currentInput))) {
+                            memory += parseFloat(currentInput);
+                        }
+                        break;
+                    case 'M-': // Memory Subtract
+                        if (!isNaN(parseFloat(currentInput))) {
+                            memory -= parseFloat(currentInput);
+                        }
+                        break;
+                    case 'MR': // Memory Recall
+                        currentInput = memory.toString();
+                        resultDisplay.textContent = currentInput;
+                        awaitingNextOperand = true; // After recall, next number starts new input
+                        break;
+                }
+            });
+        });
+
+        // Optional: Add keyboard support for convenience
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+
+            // Map common keyboard keys to calculator button data-values
+            const keyMap = {
+                '0': '0', '1': '1', '2': '2', '3': '3', '4': '4',
+                '5': '5', '6': '6', '7': '7', '8': '8', '9': '9',
+                '+': '+', '-': '-', '*': '*', '/': '/',
+                '.': '.',
+                'Enter': '=', // 'Enter' key acts as '='
+                '=': '=',     // Physical '=' key acts as '='
+                'Backspace': 'C', // Backspace clears current entry
+                'c': 'C', 'C': 'C', // 'c' or 'C' clears current entry
+                '%': '%',
+                // Custom mappings for scientific functions (e.g., 's' for sin, 'r' for sqrt)
+                's': 'sin', 'o': 'cos', 't': 'tan',
+                'l': 'log', 'n': 'ln', 'q': 'sqrt', // q for sqrt
+                'f': '!', // f for factorial
+                '^': '^', // ^ for x^2
+                'p': '+/-' // p for plus/minus
+            };
+
+            if (keyMap[key]) {
+                event.preventDefault(); // Prevent default browser actions for calculator keys
+                const buttonValue = keyMap[key];
+                // Find the corresponding button and simulate a click
+                const button = document.querySelector(`.button[data-value="${buttonValue}"]`);
+                if (button) {
+                    button.click(); // Trigger the button's click handler
+                }
+            }
+        });
+    </script>
 </body>
 </html>
+
