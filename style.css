@@ -1,0 +1,197 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e0e0e0; /* Light gray background */
+    color: #333;
+}
+
+.calculator {
+    background-color: #2c2c2c; /* Dark background for calculator body */
+    border-radius: 15px;
+    box-shadow: 8px 8px 15px #a3a3a3, -8px -8px 15px #ffffff; /* Subtle shadow for depth */
+    width: 380px; /* Increased width for more buttons */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.display {
+    background-color: #1a1a1a; /* Even darker for display */
+    border-radius: 10px;
+    padding: 20px;
+    text-align: right;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.1);
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100px;
+}
+
+.expression-display {
+    font-size: 1.2em;
+    color: #888; /* Lighter color for the expression */
+    min-height: 25px;
+    overflow-x: auto; /* Allow scrolling for long expressions */
+    white-space: nowrap; /* Prevent wrapping */
+    padding-bottom: 5px;
+}
+
+.result-display {
+    font-size: 2.8em;
+    color: #eee; /* Bright color for the result */
+    font-weight: 700;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columns for more buttons */
+    gap: 12px; /* Slightly reduced gap */
+}
+
+.button {
+    background-color: #4a4a4a; /* Default button color */
+    color: #eee;
+    border: none;
+    border-radius: 10px;
+    padding: 20px 0;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.4), -3px -3px 6px rgba(255,255,255,0.1); /* Button shadow */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button:hover {
+    background-color: #5a5a5a;
+    transform: translateY(-1px);
+}
+
+.button:active {
+    background-color: #3a3a3a;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.1);
+    transform: translateY(1px);
+}
+
+/* Specific button styles */
+.button.operator {
+    background-color: #ff9f0a; /* Orange for operators */
+    color: #fff;
+}
+
+.button.operator:hover {
+    background-color: #ffb333;
+}
+
+.button.operator:active {
+    background-color: #cc7f00;
+}
+
+.button.equals {
+    background-color: #28a745; /* Green for equals */
+    color: #fff;
+    grid-column: span 2; /* Make equals button span two columns */
+    font-size: 1.8em; /* Larger font for equals */
+}
+/* Re-adjust the grid column for '0' button if needed based on equals span */
+/* No need for '0' to span if equals spans 2 */
+
+
+.button.equals:hover {
+    background-color: #218838;
+}
+
+.button.equals:active {
+    background-color: #1e7e34;
+}
+
+.button.clear {
+    background-color: #dc3545; /* Red for clear */
+    color: #fff;
+}
+
+.button.clear:hover {
+    background-color: #c82333;
+}
+
+.button.clear:active {
+    background-color: #bd2130;
+}
+
+.button.delete {
+    background-color: #6c757d; /* Gray for delete */
+    color: #fff;
+}
+
+.button.delete:hover {
+    background-color: #5a6268;
+}
+
+.button.delete:active {
+    background-color: #545b62;
+}
+
+.button.function,
+.button.memory,
+.button.constant {
+    background-color: #6f42c1; /* Purple for scientific/memory */
+    font-size: 1.2em; /* Slightly smaller font for these */
+}
+
+.button.function:hover,
+.button.memory:hover,
+.button.constant:hover {
+    background-color: #5e37a8;
+}
+
+.button.function:active,
+.button.memory:active,
+.button.constant:active {
+    background-color: #533194;
+}
+
+/* Adjustments for the '0' button to fit the 5-column grid better */
+/* If the equals button spans 2, and the last row has 5 buttons total,
+   the '0' button will naturally fit without needing `grid-column: span 2;` */
+/* But if we make it span 2, then the layout will shift */
+/* Current layout has '0' next to '+' and then 1,2,3,. and = in the next line.
+   Let's check the HTML again for button placement. */
+/* Okay, in the HTML, '0' is with 4,5,6,+ so it's a regular button */
+/* The equals button is designed to span 2, so the last row is 1,2,3,.,= where = takes up 2 spots. */
+/* This setup works for the 5-column grid. */
+
+@media (max-width: 420px) {
+    .calculator {
+        width: 95%;
+        padding: 15px;
+        gap: 10px;
+    }
+    .buttons {
+        gap: 8px;
+    }
+    .button {
+        font-size: 1.2em;
+        padding: 15px 0;
+    }
+    .result-display {
+        font-size: 2.2em;
+    }
+    .expression-display {
+        font-size: 1em;
+    }
+}
